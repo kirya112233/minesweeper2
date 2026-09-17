@@ -21,12 +21,25 @@ export const GameControls: React.FC<GameControlsProps> = ({
   onReset,
   onDifficultyChange,
 }) => {
-  const getStatusEmoji = () => {
-    switch (gameStatus) {
-      case 'won': return '😎';
-      case 'lost': return '💀';
-      default: return '😊';
-    }
+  const getResetIcon = () => {
+    const iconColor = gameStatus === 'won' ? '#22c55e' : gameStatus === 'lost' ? '#ef4444' : '#fbbf24';
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={iconColor}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="reset-icon"
+      >
+        <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+        <path d="M3 3v5h5" />
+      </svg>
+    );
   };
 
   const formatTime = (seconds: number): string => {
@@ -68,10 +81,12 @@ export const GameControls: React.FC<GameControlsProps> = ({
         {/* Reset button */}
         <button
           onClick={() => onReset()}
-          className="text-3xl hover:scale-110 active:scale-95 transition-transform bg-gray-700 rounded-lg px-3 py-1 hover:bg-gray-600"
-          title="Новая игра"
+          className="group flex items-center justify-center w-12 h-12 bg-gray-700 hover:bg-gray-600 rounded-xl transition-all hover:scale-110 active:scale-95 shadow-lg"
+          title="Начать заново"
         >
-          {getStatusEmoji()}
+          <span className="transition-transform duration-500 group-hover:rotate-180">
+            {getResetIcon()}
+          </span>
         </button>
 
         {/* Timer */}
