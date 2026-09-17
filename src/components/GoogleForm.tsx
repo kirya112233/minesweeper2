@@ -3,14 +3,12 @@ import React from 'react';
 interface GoogleFormProps {
   isOpen: boolean;
   onClose: () => void;
-  formUrl: string;
   embedUrl: string;
 }
 
 export const GoogleForm: React.FC<GoogleFormProps> = ({
   isOpen,
   onClose,
-  formUrl,
   embedUrl,
 }) => {
   if (!isOpen) return null;
@@ -30,26 +28,16 @@ export const GoogleForm: React.FC<GoogleFormProps> = ({
           <h2 className="text-xl font-bold flex items-center gap-2">
             📩 Обратная связь
           </h2>
-          <div className="flex items-center gap-2">
-            <a
-              href={formUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-            >
-              ↗ Открыть в новой вкладке
-            </a>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
-            >
-              ✕
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors text-lg"
+          >
+            ✕
+          </button>
         </div>
 
         {/* Form iframe */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden bg-white">
           <iframe
             src={embedUrl}
             className="w-full h-full border-0"
