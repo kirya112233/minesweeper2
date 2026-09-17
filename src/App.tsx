@@ -1,9 +1,20 @@
 import { useState, useCallback } from 'react';
 import { Board } from './components/Board';
 import { GameControls } from './components/GameControls';
-import { FeedbackForm } from './components/FeedbackForm';
+import { GoogleForm } from './components/GoogleForm';
 import { useMinesweeper } from './hooks/useMinesweeper';
 import { Difficulty } from './types';
+
+// ============================================
+// НАСТРОЙКА GOOGLE FORMS
+// ============================================
+// Замените эти URL на свои:
+// 1. Создайте форму на https://forms.google.com
+// 2. Скопируйте URL формы (для открытия в новой вкладке)
+// 3. Нажмите "Отправить" → "<>" (встроить) → скопируйте src из iframe
+// ============================================
+const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform';
+const GOOGLE_FORM_EMBED_URL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?embedded=true';
 
 function App() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -106,6 +117,14 @@ function App() {
           >
             📩 Написать отзыв
           </button>
+          <a
+            href={GOOGLE_FORM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2.5 bg-white/10 text-white rounded-lg font-medium text-sm hover:bg-white/20 transition-all hover:scale-105 border border-white/20"
+          >
+            📋 Открыть форму
+          </a>
           <button
             onClick={() => {
               navigator.clipboard.writeText(window.location.href);
@@ -120,16 +139,6 @@ function App() {
           >
             🔗 Поделиться
           </button>
-          <button
-            onClick={() => {
-              const subject = encodeURIComponent('Предложение по игре Сапёр');
-              const body = encodeURIComponent(`Здравствуйте!\n\nМои предложения:\n\n---\nСложность: ${config.label}\nВремя в игре: ${timer}с`);
-              window.open(`mailto:feedback@minesweeper.game?subject=${subject}&body=${body}`);
-            }}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white/10 text-white rounded-lg font-medium text-sm hover:bg-white/20 transition-all hover:scale-105 border border-white/20"
-          >
-            ✉️ Email
-          </button>
         </div>
       </div>
 
@@ -139,16 +148,12 @@ function App() {
         <p className="mt-1">© 2026 Сапёр • Все права защищены</p>
       </div>
 
-      {/* Feedback Modal */}
-      <FeedbackForm
+      {/* Google Form Modal */}
+      <GoogleForm
         isOpen={feedbackOpen}
         onClose={() => setFeedbackOpen(false)}
-        gameStats={{
-          difficulty,
-          gameStatus,
-          timer,
-          flagCount,
-        }}
+        formUrl={GOOGLE_FORM_URL}
+        embedUrl={GOOGLE_FORM_EMBED_URL}
       />
     </div>
   );
