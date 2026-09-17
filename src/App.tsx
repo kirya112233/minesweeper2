@@ -64,7 +64,7 @@ function App() {
       />
 
       {/* Board */}
-      <div className="overflow-auto max-w-full max-h-[60vh] p-2">
+      <div className="overflow-auto max-w-full max-h-[60vh] p-2 game-board-container">
         <Board
           board={board}
           gameStatus={gameStatus}

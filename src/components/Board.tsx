@@ -39,6 +39,7 @@ export const Board: React.FC<BoardProps> = ({
                 onCellRightClick(rowIndex, colIndex);
               }}
               onMiddleClick={() => onRevealAdjacent(rowIndex, colIndex)}
+              onLongPress={() => onCellRightClick(rowIndex, colIndex)}
             />
           ))}
         </div>
