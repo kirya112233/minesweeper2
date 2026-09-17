@@ -116,9 +116,61 @@ function App() {
       </div>
 
       {/* Footer */}
-      <div className="text-gray-500 text-xs text-center mt-4">
-        <p>Нажмите на смайлик для новой игры • Средняя кнопка мыши — открыть соседние клетки</p>
-        <p className="mt-1">© 2026 Сапёр • Все права защищены</p>
+      <div className="w-full max-w-2xl mt-4 space-y-4">
+        {/* How to play */}
+        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 sm:p-5 border border-white/10">
+          <h3 className="text-white font-bold text-sm sm:text-base mb-3 flex items-center gap-2">
+            🎮 Как играть
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+            {/* Desktop controls */}
+            <div className="space-y-2">
+              <p className="text-gray-300 font-semibold text-xs uppercase tracking-wider">💻 Компьютер</p>
+              <div className="space-y-1.5 text-gray-400">
+                <p className="flex items-start gap-2">
+                  <span className="bg-gray-700 px-1.5 py-0.5 rounded text-gray-200 font-mono text-xs whitespace-nowrap">ЛКМ</span>
+                  <span>Открыть клетку</span>
+                </p>
+                <p className="flex items-start gap-2">
+                  <span className="bg-gray-700 px-1.5 py-0.5 rounded text-gray-200 font-mono text-xs whitespace-nowrap">ПКМ</span>
+                  <span>Поставить / снять флажок 🚩</span>
+                </p>
+                <p className="flex items-start gap-2">
+                  <span className="bg-gray-700 px-1.5 py-0.5 rounded text-gray-200 font-mono text-xs whitespace-nowrap">СКМ</span>
+                  <span>Открыть соседние клетки (если все мины отмечены)</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Mobile controls */}
+            <div className="space-y-2">
+              <p className="text-gray-300 font-semibold text-xs uppercase tracking-wider">📱 Телефон</p>
+              <div className="space-y-1.5 text-gray-400">
+                <p className="flex items-start gap-2">
+                  <span className="bg-gray-700 px-1.5 py-0.5 rounded text-gray-200 font-mono text-xs whitespace-nowrap">Тап</span>
+                  <span>Открыть клетку</span>
+                </p>
+                <p className="flex items-start gap-2">
+                  <span className="bg-gray-700 px-1.5 py-0.5 rounded text-gray-200 font-mono text-xs whitespace-nowrap">Удержание</span>
+                  <span>Поставить / снять флажок 🚩</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Rules */}
+          <div className="mt-4 pt-3 border-t border-white/10">
+            <p className="text-gray-300 font-semibold text-xs uppercase tracking-wider mb-2">📖 Правила</p>
+            <ul className="text-gray-400 text-xs sm:text-sm space-y-1 list-disc list-inside">
+              <li>Цель — открыть все клетки, не наступив на мину</li>
+              <li>Цифры показывают количество мин в соседних клетках</li>
+              <li>Первый клик всегда безопасен — мины размещаются после него</li>
+              <li>Используйте флажки, чтобы отмечать предполагаемые мины</li>
+            </ul>
+          </div>
+        </div>
+
+        <p className="text-gray-600 text-xs text-center">© 2026 Сапёр • Все права защищены</p>
       </div>
 
       {/* Google Form Modal */}
