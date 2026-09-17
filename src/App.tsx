@@ -104,33 +104,13 @@ function App() {
           </div>
         )}
 
-        {/* Feedback buttons */}
-        <div className="flex flex-wrap gap-2 justify-center">
+        {/* Feedback button */}
+        <div className="flex justify-center">
           <button
             onClick={() => setFeedbackOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium text-sm hover:from-blue-700 hover:to-purple-700 transition-all hover:scale-105 shadow-lg"
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium text-sm hover:from-blue-700 hover:to-purple-700 transition-all hover:scale-105 shadow-lg"
           >
             📩 Написать отзыв
-          </button>
-          <button
-            onClick={() => setFeedbackOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white/10 text-white rounded-lg font-medium text-sm hover:bg-white/20 transition-all hover:scale-105 border border-white/20"
-          >
-            📋 Открыть форму
-          </button>
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(window.location.href);
-              const btn = document.getElementById('share-btn');
-              if (btn) {
-                btn.textContent = '✅ Ссылка скопирована!';
-                setTimeout(() => { btn.textContent = '🔗 Поделиться'; }, 2000);
-              }
-            }}
-            id="share-btn"
-            className="flex items-center gap-2 px-4 py-2.5 bg-white/10 text-white rounded-lg font-medium text-sm hover:bg-white/20 transition-all hover:scale-105 border border-white/20"
-          >
-            🔗 Поделиться
           </button>
         </div>
       </div>
