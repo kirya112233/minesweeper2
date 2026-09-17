@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Board } from './components/Board';
 import { GameControls } from './components/GameControls';
 import { GoogleForm } from './components/GoogleForm';
+import { ExplosionEffect } from './components/ExplosionEffect';
 import { useMinesweeper } from './hooks/useMinesweeper';
 import { Difficulty } from './types';
 
@@ -15,6 +16,8 @@ function App() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [quickFeedback, setQuickFeedback] = useState<number | null>(null);
   const [showQuickFeedback, setShowQuickFeedback] = useState(true);
+  const [isShaking, setIsShaking] = useState(false);
+  const [showExplosion, setShowExplosion] = useState(false);
 
   const {
     board,
@@ -33,6 +36,30 @@ function App() {
     resetGame(newDifficulty);
   }, [resetGame]);
 
+  // Explosion effect on game over
+  useEffect(() => {
+    if (gameStatus === 'lost') {
+      setShowExplosion(true);
+      setIsShaking(true);
+
+      // Haptic feedback on mobile
+      if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100, 50, 200]);
+      }
+
+      const shakeTimer = setTimeout(() => setIsShaking(false), 500);
+      const explosionTimer = setTimeout(() => setShowExplosion(false), 2000);
+
+      return () => {
+        clearTimeout(shakeTimer);
+        clearTimeout(explosionTimer);
+      };
+    } else {
+      setShowExplosion(false);
+      setIsShaking(false);
+    }
+  }, [gameStatus]);
+
   const handleQuickFeedback = (rating: number) => {
     setQuickFeedback(rating);
     setTimeout(() => {
@@ -41,7 +68,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900 flex flex-col items-center justify-center p-4 gap-6">
+    <div className={`min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900 flex flex-col items-center justify-center p-4 gap-6 ${isShaking ? 'screen-shake' : ''}`}>
       {/* Header */}
       <div className="text-center">
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-2 tracking-tight">
@@ -179,6 +206,9 @@ function App() {
         onClose={() => setFeedbackOpen(false)}
         embedUrl={GOOGLE_FORM_EMBED_URL}
       />
+
+      {/* Explosion Effect */}
+      <ExplosionEffect isActive={showExplosion} />
     </div>
   );
 }
