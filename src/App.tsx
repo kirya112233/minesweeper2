@@ -3,6 +3,7 @@ import { Board } from './components/Board';
 import { GameControls } from './components/GameControls';
 import { GoogleForm } from './components/GoogleForm';
 import { ExplosionEffect } from './components/ExplosionEffect';
+import { FireworkEffect } from './components/FireworkEffect';
 import { useMinesweeper } from './hooks/useMinesweeper';
 import { Difficulty } from './types';
 
@@ -18,6 +19,7 @@ function App() {
   const [showQuickFeedback, setShowQuickFeedback] = useState(true);
   const [isShaking, setIsShaking] = useState(false);
   const [showExplosion, setShowExplosion] = useState(false);
+  const [showFireworks, setShowFireworks] = useState(false);
 
   const {
     board,
@@ -41,6 +43,7 @@ function App() {
     if (gameStatus === 'lost') {
       setShowExplosion(true);
       setIsShaking(true);
+      setShowFireworks(false);
 
       // Haptic feedback on mobile
       if (navigator.vibrate) {
@@ -54,9 +57,25 @@ function App() {
         clearTimeout(shakeTimer);
         clearTimeout(explosionTimer);
       };
+    } else if (gameStatus === 'won') {
+      setShowFireworks(true);
+      setShowExplosion(false);
+      setIsShaking(false);
+
+      // Haptic feedback on mobile - celebration pattern
+      if (navigator.vibrate) {
+        navigator.vibrate([50, 50, 50, 50, 100]);
+      }
+
+      const fireworksTimer = setTimeout(() => setShowFireworks(false), 5000);
+
+      return () => {
+        clearTimeout(fireworksTimer);
+      };
     } else {
       setShowExplosion(false);
       setIsShaking(false);
+      setShowFireworks(false);
     }
   }, [gameStatus]);
 
@@ -209,6 +228,9 @@ function App() {
 
       {/* Explosion Effect */}
       <ExplosionEffect isActive={showExplosion} />
+
+      {/* Firework Effect */}
+      <FireworkEffect isActive={showFireworks} />
     </div>
   );
 }

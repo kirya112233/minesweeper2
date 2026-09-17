@@ -186,3 +186,99 @@ button {
 .screen-shake {
   animation: screen-shake 0.5s ease-in-out;
 }
+
+/* Firework rocket animation */
+@keyframes rocket-launch {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(calc(-1 * var(--target-y))) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(calc(-1 * var(--target-y))) scale(0);
+    opacity: 0;
+  }
+}
+
+.firework-rocket {
+  animation: rocket-launch 0.8s ease-out forwards;
+}
+
+/* Rocket trail */
+@keyframes trail-fade {
+  0% {
+    opacity: 0.8;
+    height: 3rem;
+  }
+  100% {
+    opacity: 0;
+    height: 0;
+  }
+}
+
+.rocket-trail {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), transparent);
+  animation: trail-fade 0.8s ease-out forwards;
+}
+
+/* Firework particle explosion */
+@keyframes particle-burst {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--end-x), var(--end-y)) scale(0);
+    opacity: 0;
+  }
+}
+
+.firework-particle {
+  animation: particle-burst 1.5s ease-out forwards;
+}
+
+/* Victory text animation */
+@keyframes victory-appear {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes victory-glow {
+  0%, 100% {
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.6);
+  }
+  50% {
+    text-shadow: 0 0 40px rgba(255, 215, 0, 1), 0 0 80px rgba(255, 215, 0, 0.8), 0 0 120px rgba(255, 215, 0, 0.6);
+  }
+}
+
+.victory-text {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #ffd700;
+  animation: victory-appear 0.8s ease-out forwards, victory-glow 2s ease-in-out infinite;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.6);
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+}
+
+@media (max-width: 640px) {
+  .victory-text {
+    font-size: 2.5rem;
+  }
+}
