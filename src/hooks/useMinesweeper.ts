@@ -5,6 +5,7 @@ export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
   beginner: { rows: 9, cols: 9, mines: 10, label: 'Новичок', emoji: '😊' },
   intermediate: { rows: 16, cols: 16, mines: 40, label: 'Средний', emoji: '🤔' },
   expert: { rows: 16, cols: 30, mines: 99, label: 'Эксперт', emoji: '😎' },
+  special: { rows: 16, cols: 16, mines: 40, label: 'Особый', emoji: '🎯' },
 };
 
 function createEmptyBoard(rows: number, cols: number): Cell[][] {
@@ -178,7 +179,12 @@ export function useMinesweeper(initialDifficulty: Difficulty = 'beginner') {
             }
             break;
           }
-          newBoard = revealCell(newBoard, nr, nc, rows, cols);
+          if (difficulty === 'special') {
+            // In special mode, only reveal the single cell
+            newBoard[nr][nc].isRevealed = true;
+          } else {
+            newBoard = revealCell(newBoard, nr, nc, rows, cols);
+          }
         }
       }
 
@@ -228,8 +234,15 @@ export function useMinesweeper(initialDifficulty: Difficulty = 'beginner') {
         return lostBoard;
       }
 
-      // Reveal cell (flood fill if empty)
-      newBoard = revealCell(newBoard, row, col, rows, cols);
+      // Reveal cell
+      if (difficulty === 'special') {
+        // In special mode, only reveal the clicked cell (no flood fill)
+        newBoard = newBoard.map(r => r.map(c => ({ ...c })));
+        newBoard[row][col].isRevealed = true;
+      } else {
+        // Normal mode: flood fill if empty
+        newBoard = revealCell(newBoard, row, col, rows, cols);
+      }
 
       // Check win
       if (checkWin(newBoard, config.mines)) {
@@ -239,7 +252,7 @@ export function useMinesweeper(initialDifficulty: Difficulty = 'beginner') {
 
       return newBoard;
     });
-  }, [gameStatus, config, startTimer, stopTimer]);
+  }, [gameStatus, config, difficulty, startTimer, stopTimer]);
 
   const handleCellRightClick = useCallback((row: number, col: number) => {
     if (gameStatus === 'won' || gameStatus === 'lost') return;

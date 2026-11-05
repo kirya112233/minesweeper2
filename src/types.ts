@@ -7,7 +7,7 @@ export interface Cell {
   adjacentMines: number;
 }
 
-export type Difficulty = 'beginner' | 'intermediate' | 'expert';
+export type Difficulty = 'beginner' | 'intermediate' | 'expert' | 'special';
 
 export interface DifficultyConfig {
   rows: number;
