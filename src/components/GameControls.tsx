@@ -101,7 +101,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
       {/* Special mode hint */}
       {difficulty === 'special' && gameStatus !== 'won' && gameStatus !== 'lost' && (
         <div className="bg-amber-100 border-2 border-amber-400 text-amber-800 px-4 py-2 rounded-xl text-sm text-center">
-          🎯 <strong>Особый режим:</strong> клетки открываются только по одной — без автооткрытия пустых областей
+          🎯 <strong>Особый режим:</strong> клетки открываются только по одной • Собирайте способности 📡🧰⛏️
         </div>
       )}
 

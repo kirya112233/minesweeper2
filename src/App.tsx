@@ -7,9 +7,6 @@ import { FireworkEffect } from './components/FireworkEffect';
 import { useMinesweeper } from './hooks/useMinesweeper';
 import { Difficulty } from './types';
 
-// ============================================
-// НАСТРОЙКА GOOGLE FORMS
-// ============================================
 const GOOGLE_FORM_ID = '1Qnc8kNMgZO-HkI-FPfzBdroc5ercvZ6LdL97xUSwA-A';
 const GOOGLE_FORM_EMBED_URL = `https://docs.google.com/forms/d/${GOOGLE_FORM_ID}/viewform?embedded=true`;
 
@@ -28,6 +25,11 @@ function App() {
     flagCount,
     difficulty,
     config,
+    radarMode,
+    radarCells,
+    hasToolkit,
+    shovelMode,
+    abilityUsed,
     handleCellClick,
     handleCellRightClick,
     revealAdjacentCells,
@@ -38,6 +40,13 @@ function App() {
     resetGame(newDifficulty);
   }, [resetGame]);
 
+  const handleQuickFeedback = (rating: number) => {
+    setQuickFeedback(rating);
+    setTimeout(() => {
+      setShowQuickFeedback(false);
+    }, 1500);
+  };
+
   // Explosion effect on game over
   useEffect(() => {
     if (gameStatus === 'lost') {
@@ -45,7 +54,6 @@ function App() {
       setIsShaking(true);
       setShowFireworks(false);
 
-      // Haptic feedback on mobile
       if (navigator.vibrate) {
         navigator.vibrate([100, 50, 100, 50, 200]);
       }
@@ -62,7 +70,6 @@ function App() {
       setShowExplosion(false);
       setIsShaking(false);
 
-      // Haptic feedback on mobile - celebration pattern
       if (navigator.vibrate) {
         navigator.vibrate([50, 50, 50, 50, 100]);
       }
@@ -78,13 +85,6 @@ function App() {
       setShowFireworks(false);
     }
   }, [gameStatus]);
-
-  const handleQuickFeedback = (rating: number) => {
-    setQuickFeedback(rating);
-    setTimeout(() => {
-      setShowQuickFeedback(false);
-    }, 1500);
-  };
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900 flex flex-col items-center justify-center p-4 gap-6 ${isShaking ? 'screen-shake' : ''}`}>
@@ -109,11 +109,51 @@ function App() {
         onDifficultyChange={handleDifficultyChange}
       />
 
+      {/* Ability status for special mode */}
+      {difficulty === 'special' && (
+        <div className="flex flex-wrap gap-2 justify-center">
+          {radarMode && (
+            <div className="bg-cyan-500/20 border-2 border-cyan-400 text-cyan-300 px-3 py-1.5 rounded-lg text-sm font-medium animate-pulse">
+              📡 Радар активен — нажмите на клетку
+            </div>
+          )}
+          {hasToolkit && (
+            <div className="bg-green-500/20 border-2 border-green-400 text-green-300 px-3 py-1.5 rounded-lg text-sm font-medium">
+              🧰 Набор сапёра активен
+            </div>
+          )}
+          {shovelMode && (
+            <div className="bg-amber-500/20 border-2 border-amber-400 text-amber-300 px-3 py-1.5 rounded-lg text-sm font-medium">
+              ⛏️ Лопата активна — автооткрытие
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Ability used notification */}
+      {abilityUsed && (
+        <div className={`fixed top-20 left-1/2 -translate-x-1/2 z-40 px-6 py-3 rounded-xl font-bold text-lg animate-bounce ${
+          abilityUsed === 'radar' ? 'bg-cyan-500 text-white' :
+          abilityUsed === 'radar-pickup' ? 'bg-cyan-600 text-white' :
+          abilityUsed === 'toolkit-pickup' ? 'bg-green-600 text-white' :
+          abilityUsed === 'toolkit-use' ? 'bg-green-500 text-white' :
+          abilityUsed === 'shovel-pickup' ? 'bg-amber-600 text-white' :
+          'bg-gray-700 text-white'
+        }`}>
+          {abilityUsed === 'radar' && '📡 Радар использован!'}
+          {abilityUsed === 'radar-pickup' && '📡 Радар подобран!'}
+          {abilityUsed === 'toolkit-pickup' && '🧰 Набор сапёра подобран!'}
+          {abilityUsed === 'toolkit-use' && '🛡️ Мина обезврежена!'}
+          {abilityUsed === 'shovel-pickup' && '⛏️ Лопата подобрана!'}
+        </div>
+      )}
+
       {/* Board */}
       <div className="overflow-auto max-w-full max-h-[60vh] p-2 game-board-container">
         <Board
           board={board}
           gameStatus={gameStatus}
+          radarCells={radarCells}
           onCellClick={handleCellClick}
           onCellRightClick={handleCellRightClick}
           onRevealAdjacent={revealAdjacentCells}
@@ -169,7 +209,6 @@ function App() {
             🎮 Как играть
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
-            {/* Desktop controls */}
             <div className="space-y-2">
               <p className="text-gray-300 font-semibold text-xs uppercase tracking-wider">💻 Компьютер</p>
               <div className="space-y-1.5 text-gray-400">
@@ -188,7 +227,6 @@ function App() {
               </div>
             </div>
 
-            {/* Mobile controls */}
             <div className="space-y-2">
               <p className="text-gray-300 font-semibold text-xs uppercase tracking-wider">📱 Телефон</p>
               <div className="space-y-1.5 text-gray-400">
@@ -213,6 +251,25 @@ function App() {
               <li>Первый клик всегда безопасен — мины размещаются после него</li>
               <li>Используйте флажки, чтобы отмечать предполагаемые мины</li>
             </ul>
+          </div>
+
+          {/* Special mode abilities */}
+          <div className="mt-4 pt-3 border-t border-white/10">
+            <p className="text-gray-300 font-semibold text-xs uppercase tracking-wider mb-2">🎯 Способности (режим "Особый")</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs sm:text-sm">
+              <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-2">
+                <p className="text-cyan-300 font-bold">📡 Радар</p>
+                <p className="text-gray-400 text-xs mt-1">Подсвечивает мины в 8 клетках вокруг</p>
+              </div>
+              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-2">
+                <p className="text-green-300 font-bold">🧰 Набор сапёра</p>
+                <p className="text-gray-400 text-xs mt-1">Обезвреживает одну мину</p>
+              </div>
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2">
+                <p className="text-amber-300 font-bold">⛏️ Лопата</p>
+                <p className="text-gray-400 text-xs mt-1">Автооткрытие на 1 ход</p>
+              </div>
+            </div>
           </div>
         </div>
 

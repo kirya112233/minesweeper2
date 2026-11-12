@@ -1,5 +1,3 @@
-export type Ability = 'radar' | 'toolkit' | null;
-
 export interface Cell {
   row: number;
   col: number;
@@ -7,7 +5,8 @@ export interface Cell {
   isRevealed: boolean;
   isFlagged: boolean;
   adjacentMines: number;
-  ability: Ability;
+  ability: 'radar' | 'toolkit' | 'shovel' | null;
+  isDisarmed: boolean;
 }
 
 export type Difficulty = 'beginner' | 'intermediate' | 'expert' | 'special';
