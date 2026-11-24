@@ -5,7 +5,7 @@ export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
   beginner: { rows: 9, cols: 9, mines: 10, label: 'Новичок', emoji: '😊' },
   intermediate: { rows: 16, cols: 16, mines: 40, label: 'Средний', emoji: '🤔' },
   expert: { rows: 16, cols: 30, mines: 99, label: 'Эксперт', emoji: '😎' },
-  special: { rows: 16, cols: 16, mines: 40, label: 'Особый', emoji: '🎯' },
+  special: { rows: 15, cols: 30, mines: 85, label: 'Особый', emoji: '🎯' },
 };
 
 function createEmptyBoard(rows: number, cols: number): Cell[][] {
@@ -20,6 +20,8 @@ function createEmptyBoard(rows: number, cols: number): Cell[][] {
         isRevealed: false,
         isFlagged: false,
         adjacentMines: 0,
+        ability: null,
+        isDisarmed: false,
       };
     }
   }
@@ -55,7 +57,6 @@ function placeMines(
   while (placed < mines) {
     const r = Math.floor(Math.random() * rows);
     const c = Math.floor(Math.random() * cols);
-    // Don't place mine on the first clicked cell or its neighbors
     const isSafe = r === safeRow && c === safeCol;
     const isNeighborOfSafe = Math.abs(r - safeRow) <= 1 && Math.abs(c - safeCol) <= 1;
     if (!newBoard[r][c].isMine && !isSafe && !isNeighborOfSafe) {
@@ -79,6 +80,60 @@ function placeMines(
   return newBoard;
 }
 
+function placeAbilities(board: Cell[][], rows: number, cols: number): Cell[][] {
+  const newBoard = board.map(row => row.map(cell => ({ ...cell })));
+  const abilities: Array<'radar' | 'toolkit' | 'shovel'> = [];
+  
+  // Add 15 of each ability
+  for (let i = 0; i < 15; i++) {
+    abilities.push('radar', 'toolkit', 'shovel');
+  }
+
+  // Shuffle abilities
+  for (let i = abilities.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [abilities[i], abilities[j]] = [abilities[j], abilities[i]];
+  }
+
+  // Find all empty cells (not mines)
+  const emptyCells: [number, number][] = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (!newBoard[r][c].isMine) {
+        emptyCells.push([r, c]);
+      }
+    }
+  }
+
+  // Shuffle empty cells
+  for (let i = emptyCells.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [emptyCells[i], emptyCells[j]] = [emptyCells[j], emptyCells[i]];
+  }
+
+  // Place abilities on first 45 empty cells
+  for (let i = 0; i < abilities.length && i < emptyCells.length; i++) {
+    const [r, c] = emptyCells[i];
+    newBoard[r][c].ability = abilities[i];
+    // Cells with abilities are treated as empty
+    newBoard[r][c].adjacentMines = 0;
+  }
+
+  // Recalculate adjacent mines for all cells
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (!newBoard[r][c].isMine) {
+        const neighbors = getNeighbors(r, c, rows, cols);
+        newBoard[r][c].adjacentMines = neighbors.filter(
+          ([nr, nc]) => newBoard[nr][nc].isMine
+        ).length;
+      }
+    }
+  }
+
+  return newBoard;
+}
+
 function revealCell(board: Cell[][], row: number, col: number, rows: number, cols: number): Cell[][] {
   const newBoard = board.map(r => r.map(c => ({ ...c })));
   const queue: [number, number][] = [[row, col]];
@@ -88,7 +143,8 @@ function revealCell(board: Cell[][], row: number, col: number, rows: number, col
     if (newBoard[r][c].isRevealed || newBoard[r][c].isFlagged) continue;
     newBoard[r][c].isRevealed = true;
 
-    if (newBoard[r][c].adjacentMines === 0 && !newBoard[r][c].isMine) {
+    // Only flood fill if cell has no adjacent mines and no ability
+    if (newBoard[r][c].adjacentMines === 0 && !newBoard[r][c].isMine && !newBoard[r][c].ability) {
       const neighbors = getNeighbors(r, c, rows, cols);
       for (const [nr, nc] of neighbors) {
         if (!newBoard[nr][nc].isRevealed && !newBoard[nr][nc].isFlagged) {
@@ -120,6 +176,13 @@ export function useMinesweeper(initialDifficulty: Difficulty = 'beginner') {
   const [timer, setTimer] = useState(0);
   const [flagCount, setFlagCount] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  
+  // Special mode ability states
+  const [radarMode, setRadarMode] = useState(false);
+  const [radarCells, setRadarCells] = useState<[number, number][]>([]);
+  const [hasToolkit, setHasToolkit] = useState(false);
+  const [shovelMode, setShovelMode] = useState(false);
+  const [abilityUsed, setAbilityUsed] = useState<string | null>(null);
 
   const stopTimer = useCallback(() => {
     if (timerRef.current) {
@@ -147,6 +210,11 @@ export function useMinesweeper(initialDifficulty: Difficulty = 'beginner') {
     setGameStatus('idle');
     setTimer(0);
     setFlagCount(0);
+    setRadarMode(false);
+    setRadarCells([]);
+    setHasToolkit(false);
+    setShovelMode(false);
+    setAbilityUsed(null);
     stopTimer();
   }, [difficulty, stopTimer]);
 
@@ -169,7 +237,6 @@ export function useMinesweeper(initialDifficulty: Difficulty = 'beginner') {
         if (!newBoard[nr][nc].isRevealed && !newBoard[nr][nc].isFlagged) {
           if (newBoard[nr][nc].isMine) {
             hitMine = true;
-            // Reveal all mines
             for (let r = 0; r < rows; r++) {
               for (let c = 0; c < cols; c++) {
                 if (newBoard[r][c].isMine) {
@@ -179,8 +246,7 @@ export function useMinesweeper(initialDifficulty: Difficulty = 'beginner') {
             }
             break;
           }
-          if (difficulty === 'special') {
-            // In special mode, only reveal the single cell
+          if (difficulty === 'special' && !shovelMode) {
             newBoard[nr][nc].isRevealed = true;
           } else {
             newBoard = revealCell(newBoard, nr, nc, rows, cols);
@@ -198,7 +264,7 @@ export function useMinesweeper(initialDifficulty: Difficulty = 'beginner') {
 
       return newBoard;
     });
-  }, [difficulty, stopTimer]);
+  }, [difficulty, shovelMode, stopTimer]);
 
   const handleCellClick = useCallback((row: number, col: number) => {
     if (gameStatus === 'won' || gameStatus === 'lost') return;
@@ -211,15 +277,82 @@ export function useMinesweeper(initialDifficulty: Difficulty = 'beginner') {
       const rows = prevBoard.length;
       const cols = prevBoard[0].length;
 
-      // First click - place mines
+      // First click - place mines and abilities
       if (gameStatus === 'idle') {
         newBoard = placeMines(prevBoard, rows, cols, config.mines, row, col);
+        if (difficulty === 'special') {
+          newBoard = placeAbilities(newBoard, rows, cols);
+        }
         setGameStatus('playing');
         startTimer();
       }
 
+      // Radar mode - show mines around clicked cell
+      if (radarMode && difficulty === 'special') {
+        const neighbors = getNeighbors(row, col, rows, cols);
+        const mineCells = neighbors.filter(([nr, nc]) => newBoard[nr][nc].isMine);
+        setRadarCells(mineCells);
+        setRadarMode(false);
+        setAbilityUsed('radar');
+        setTimeout(() => {
+          setRadarCells([]);
+          setAbilityUsed(null);
+        }, 2000);
+        return newBoard;
+      }
+
+      // Check if cell has ability
+      if (newBoard[row][col].ability && difficulty === 'special') {
+        const ability = newBoard[row][col].ability;
+        newBoard = newBoard.map(r => r.map(c => ({ ...c })));
+        newBoard[row][col].isRevealed = true;
+        newBoard[row][col].ability = null; // Consume ability
+
+        if (ability === 'radar') {
+          setRadarMode(true);
+          setAbilityUsed('radar-pickup');
+          setTimeout(() => setAbilityUsed(null), 1000);
+        } else if (ability === 'toolkit') {
+          setHasToolkit(true);
+          setAbilityUsed('toolkit-pickup');
+          setTimeout(() => setAbilityUsed(null), 1000);
+        } else if (ability === 'shovel') {
+          setShovelMode(true);
+          setAbilityUsed('shovel-pickup');
+          setTimeout(() => setAbilityUsed(null), 1000);
+        }
+
+        return newBoard;
+      }
+
+      // Hit a mine
       if (newBoard[row][col].isMine) {
-        // Hit a mine - reveal all mines
+        // Toolkit saves you
+        if (hasToolkit && difficulty === 'special') {
+          newBoard = newBoard.map(r => r.map(c => ({ ...c })));
+          newBoard[row][col].isMine = false;
+          newBoard[row][col].isDisarmed = true;
+          newBoard[row][col].isRevealed = true;
+          setHasToolkit(false);
+          setAbilityUsed('toolkit-use');
+          setTimeout(() => setAbilityUsed(null), 1500);
+          
+          // Recalculate adjacent mines
+          for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+              if (!newBoard[r][c].isMine) {
+                const neighbors = getNeighbors(r, c, rows, cols);
+                newBoard[r][c].adjacentMines = neighbors.filter(
+                  ([nr, nc]) => newBoard[nr][nc].isMine
+                ).length;
+              }
+            }
+          }
+          
+          return newBoard;
+        }
+
+        // Game over
         const lostBoard = newBoard.map(r => r.map(c => ({ ...c })));
         for (let r = 0; r < rows; r++) {
           for (let c = 0; c < cols; c++) {
@@ -235,13 +368,16 @@ export function useMinesweeper(initialDifficulty: Difficulty = 'beginner') {
       }
 
       // Reveal cell
-      if (difficulty === 'special') {
-        // In special mode, only reveal the clicked cell (no flood fill)
+      if (difficulty === 'special' && !shovelMode) {
         newBoard = newBoard.map(r => r.map(c => ({ ...c })));
         newBoard[row][col].isRevealed = true;
       } else {
-        // Normal mode: flood fill if empty
         newBoard = revealCell(newBoard, row, col, rows, cols);
+      }
+
+      // Shovel mode lasts for one click
+      if (shovelMode && difficulty === 'special') {
+        setShovelMode(false);
       }
 
       // Check win
@@ -252,7 +388,7 @@ export function useMinesweeper(initialDifficulty: Difficulty = 'beginner') {
 
       return newBoard;
     });
-  }, [gameStatus, config, difficulty, startTimer, stopTimer]);
+  }, [gameStatus, config, difficulty, radarMode, hasToolkit, shovelMode, startTimer, stopTimer]);
 
   const handleCellRightClick = useCallback((row: number, col: number) => {
     if (gameStatus === 'won' || gameStatus === 'lost') return;
@@ -277,6 +413,11 @@ export function useMinesweeper(initialDifficulty: Difficulty = 'beginner') {
     flagCount,
     difficulty,
     config,
+    radarMode,
+    radarCells,
+    hasToolkit,
+    shovelMode,
+    abilityUsed,
     handleCellClick,
     handleCellRightClick,
     revealAdjacentCells,

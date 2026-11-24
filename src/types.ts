@@ -5,6 +5,8 @@ export interface Cell {
   isRevealed: boolean;
   isFlagged: boolean;
   adjacentMines: number;
+  ability: 'radar' | 'toolkit' | 'shovel' | null;
+  isDisarmed: boolean;
 }
 
 export type Difficulty = 'beginner' | 'intermediate' | 'expert' | 'special';

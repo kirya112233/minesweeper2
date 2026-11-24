@@ -101,7 +101,19 @@ export const GameControls: React.FC<GameControlsProps> = ({
       {/* Special mode hint */}
       {difficulty === 'special' && gameStatus !== 'won' && gameStatus !== 'lost' && (
         <div className="bg-amber-100 border-2 border-amber-400 text-amber-800 px-4 py-2 rounded-xl text-sm text-center">
-          🎯 <strong>Особый режим:</strong> клетки открываются только по одной — без автооткрытия пустых областей
+          🎯 <strong>Особый режим:</strong> клетки открываются только по одной • Собирайте способности 📡🧰⛏️
+        </div>
+      )}
+
+      {/* Game status message */}
+      {gameStatus === 'won' && (
+        <div className="bg-green-100 border-2 border-green-500 text-green-800 px-6 py-3 rounded-xl font-bold text-lg animate-bounce">
+          🎉 Поздравляем! Вы победили за {timer} сек! 🎉
+        </div>
+      )}
+      {gameStatus === 'lost' && (
+        <div className="bg-red-100 border-2 border-red-500 text-red-800 px-6 py-3 rounded-xl font-bold text-lg">
+          💥 Бум! Вы наступили на мину! 💥
         </div>
       )}
 

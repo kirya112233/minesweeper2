@@ -5,6 +5,7 @@ import { CellComponent } from './Cell';
 interface BoardProps {
   board: CellType[][];
   gameStatus: GameStatus;
+  radarCells: [number, number][];
   onCellClick: (row: number, col: number) => void;
   onCellRightClick: (row: number, col: number) => void;
   onRevealAdjacent: (row: number, col: number) => void;
@@ -13,12 +14,17 @@ interface BoardProps {
 export const Board: React.FC<BoardProps> = ({
   board,
   gameStatus,
+  radarCells,
   onCellClick,
   onCellRightClick,
   onRevealAdjacent,
 }) => {
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
+  };
+
+  const isRadarHighlighted = (row: number, col: number) => {
+    return radarCells.some(([r, c]) => r === row && c === col);
   };
 
   return (
@@ -33,6 +39,7 @@ export const Board: React.FC<BoardProps> = ({
               key={`${rowIndex}-${colIndex}`}
               cell={cell}
               gameStatus={gameStatus}
+              isRadarHighlighted={isRadarHighlighted(rowIndex, colIndex)}
               onClick={() => onCellClick(rowIndex, colIndex)}
               onRightClick={(e) => {
                 e.preventDefault();
