@@ -139,9 +139,7 @@ export const CellComponent: React.FC<CellProps> = React.memo(({
     if (isDisarmed) return '🛡️';
     if (isFlagged && !isRevealed) return '🚩';
     if (!isRevealed) {
-      if (ability === 'radar') return '📡';
-      if (ability === 'toolkit') return '🧰';
-      if (ability === 'shovel') return '⛏️';
+      // Abilities are hidden - show empty cell
       return '';
     }
     if (isMine) return '💣';
@@ -159,15 +157,6 @@ export const CellComponent: React.FC<CellProps> = React.memo(({
 
     if (!isRevealed) {
       let stateClasses = 'bg-gradient-to-br from-gray-300 to-gray-400 border-gray-500 hover:from-gray-250 hover:to-gray-350 cursor-pointer active:from-gray-400 active:to-gray-500 shadow-sm hover:shadow-md';
-
-      // Ability cells have special styling
-      if (ability === 'radar') {
-        stateClasses = 'bg-gradient-to-br from-cyan-300 to-cyan-500 border-cyan-600 cursor-pointer shadow-md hover:shadow-lg ability-glow-radar';
-      } else if (ability === 'toolkit') {
-        stateClasses = 'bg-gradient-to-br from-green-300 to-green-500 border-green-600 cursor-pointer shadow-md hover:shadow-lg ability-glow-toolkit';
-      } else if (ability === 'shovel') {
-        stateClasses = 'bg-gradient-to-br from-amber-300 to-amber-500 border-amber-600 cursor-pointer shadow-md hover:shadow-lg ability-glow-shovel';
-      }
 
       if (isPressing) {
         stateClasses = 'bg-gradient-to-br from-yellow-200 to-yellow-400 border-yellow-500 shadow-md scale-95';

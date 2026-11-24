@@ -116,6 +116,18 @@ export const GameControls: React.FC<GameControlsProps> = ({
           💥 Бум! Вы наступили на мину! 💥
         </div>
       )}
+
+      {/* Game status message */}
+      {gameStatus === 'won' && (
+        <div className="bg-green-100 border-2 border-green-500 text-green-800 px-6 py-3 rounded-xl font-bold text-lg animate-bounce">
+          🎉 Поздравляем! Вы победили за {timer} сек! 🎉
+        </div>
+      )}
+      {gameStatus === 'lost' && (
+        <div className="bg-red-100 border-2 border-red-500 text-red-800 px-6 py-3 rounded-xl font-bold text-lg">
+          💥 Бум! Вы наступили на мину! 💥
+        </div>
+      )}
     </div>
   );
 };

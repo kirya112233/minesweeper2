@@ -5,7 +5,7 @@ export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
   beginner: { rows: 9, cols: 9, mines: 10, label: 'Новичок', emoji: '😊' },
   intermediate: { rows: 16, cols: 16, mines: 40, label: 'Средний', emoji: '🤔' },
   expert: { rows: 16, cols: 30, mines: 99, label: 'Эксперт', emoji: '😎' },
-  special: { rows: 16, cols: 16, mines: 50, label: 'Особый', emoji: '🎯' },
+  special: { rows: 15, cols: 30, mines: 85, label: 'Особый', emoji: '🎯' },
 };
 
 function createEmptyBoard(rows: number, cols: number): Cell[][] {
